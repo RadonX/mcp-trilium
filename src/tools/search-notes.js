@@ -17,12 +17,13 @@ export async function searchNotes(triliumClient, args) {
     });
 
     // Search notes via TriliumNext API
-    const results = await triliumClient.get(`notes?${params}`);
+    const response = await triliumClient.get(`notes?${params}`);
     
-    if (!Array.isArray(results)) {
-      throw new TriliumAPIError('Invalid response from TriliumNext API - expected array of notes');
+    if (!response || typeof response !== 'object' || !Array.isArray(response.results)) {
+      throw new TriliumAPIError('Invalid response from TriliumNext API - expected object with results array');
     }
-
+    
+    const results = response.results;
     logger.info(`Found ${results.length} notes matching query "${query}"`);
 
     if (results.length === 0) {

@@ -26,22 +26,24 @@ describe('searchNotes', () => {
 
   describe('successful searches', () => {
     test('should return formatted results for basic fulltext search', async () => {
-      const mockResponse = [
-        {
-          noteId: 'note123',
-          title: 'JavaScript Programming',
-          type: 'text',
-          dateModified: '2024-01-15T14:30:00.000Z',
-          parentNoteId: 'parent456'
-        },
-        {
-          noteId: 'note789',
-          title: 'Advanced JavaScript',
-          type: 'code',
-          dateModified: '2024-01-14T10:15:00.000Z',
-          parentNoteId: 'parent456'
-        }
-      ];
+      const mockResponse = {
+        results: [
+          {
+            noteId: 'note123',
+            title: 'JavaScript Programming',
+            type: 'text',
+            dateModified: '2024-01-15T14:30:00.000Z',
+            parentNoteId: 'parent456'
+          },
+          {
+            noteId: 'note789',
+            title: 'Advanced JavaScript',
+            type: 'code',
+            dateModified: '2024-01-14T10:15:00.000Z',
+            parentNoteId: 'parent456'
+          }
+        ]
+      };
 
       mockTriliumClient.get.mockResolvedValue(mockResponse);
 
@@ -64,14 +66,16 @@ describe('searchNotes', () => {
     });
 
     test('should handle exact match search with quotes', async () => {
-      const mockResponse = [
-        {
-          noteId: 'note456',
-          title: 'The Two Towers',
-          type: 'text',
-          dateModified: '2024-01-15T14:30:00.000Z'
-        }
-      ];
+      const mockResponse = {
+        results: [
+          {
+            noteId: 'note456',
+            title: 'The Two Towers',
+            type: 'text',
+            dateModified: '2024-01-15T14:30:00.000Z'
+          }
+        ]
+      };
 
       mockTriliumClient.get.mockResolvedValue(mockResponse);
 
@@ -86,14 +90,16 @@ describe('searchNotes', () => {
     });
 
     test('should handle label-based search', async () => {
-      const mockResponse = [
-        {
-          noteId: 'note789',
-          title: 'JavaScript Book',
-          type: 'book',
-          dateModified: '2024-01-15T14:30:00.000Z'
-        }
-      ];
+      const mockResponse = {
+        results: [
+          {
+            noteId: 'note789',
+            title: 'JavaScript Book',
+            type: 'book',
+            dateModified: '2024-01-15T14:30:00.000Z'
+          }
+        ]
+      };
 
       mockTriliumClient.get.mockResolvedValue(mockResponse);
 
@@ -107,7 +113,7 @@ describe('searchNotes', () => {
     });
 
     test('should use default limit when not specified', async () => {
-      const mockResponse = [];
+      const mockResponse = { results: [] };
       mockTriliumClient.get.mockResolvedValue(mockResponse);
 
       await searchNotes(mockTriliumClient, {
@@ -118,12 +124,14 @@ describe('searchNotes', () => {
     });
 
     test('should handle notes with missing optional fields', async () => {
-      const mockResponse = [
-        {
-          noteId: 'note123',
-          // Missing title, type, dateModified, parentNoteId
-        }
-      ];
+      const mockResponse = {
+        results: [
+          {
+            noteId: 'note123',
+            // Missing title, type, dateModified, parentNoteId
+          }
+        ]
+      };
 
       mockTriliumClient.get.mockResolvedValue(mockResponse);
 
@@ -139,15 +147,17 @@ describe('searchNotes', () => {
     });
 
     test('should include all optional fields when present', async () => {
-      const mockResponse = [
-        {
-          noteId: 'note123',
-          title: 'Complete Note',
-          type: 'code',
-          dateModified: '2024-01-15T14:30:00.000Z',
-          parentNoteId: 'parent456'
-        }
-      ];
+      const mockResponse = {
+        results: [
+          {
+            noteId: 'note123',
+            title: 'Complete Note',
+            type: 'code',
+            dateModified: '2024-01-15T14:30:00.000Z',
+            parentNoteId: 'parent456'
+          }
+        ]
+      };
 
       mockTriliumClient.get.mockResolvedValue(mockResponse);
 
@@ -165,7 +175,7 @@ describe('searchNotes', () => {
 
   describe('empty results', () => {
     test('should return helpful message when no notes found', async () => {
-      mockTriliumClient.get.mockResolvedValue([]);
+      mockTriliumClient.get.mockResolvedValue({ results: [] });
 
       const result = await searchNotes(mockTriliumClient, {
         query: 'nonexistent query',
@@ -272,7 +282,7 @@ describe('searchNotes', () => {
     });
 
     test('should accept valid limit boundaries', async () => {
-      mockTriliumClient.get.mockResolvedValue([]);
+      mockTriliumClient.get.mockResolvedValue({ results: [] });
 
       // Test minimum valid limit
       await searchNotes(mockTriliumClient, {
@@ -294,7 +304,7 @@ describe('searchNotes', () => {
     });
 
     test('should trim whitespace from query', async () => {
-      mockTriliumClient.get.mockResolvedValue([]);
+      mockTriliumClient.get.mockResolvedValue({ results: [] });
 
       await searchNotes(mockTriliumClient, {
         query: '  test query  ',
@@ -335,7 +345,7 @@ describe('searchNotes', () => {
     });
 
     test('should handle invalid API response format', async () => {
-      // Return non-array response
+      // Return response without results array
       mockTriliumClient.get.mockResolvedValue({ invalid: 'response' });
 
       const result = await searchNotes(mockTriliumClient, {
@@ -344,7 +354,7 @@ describe('searchNotes', () => {
       });
 
       expect(result.isError).toBe(true);
-      expect(result.content[0].text).toContain('❌ **TriliumNext API Error:** Invalid response from TriliumNext API - expected array of notes');
+      expect(result.content[0].text).toContain('❌ **TriliumNext API Error:** Invalid response from TriliumNext API - expected object with results array');
     });
 
     test('should handle network errors', async () => {
@@ -363,7 +373,7 @@ describe('searchNotes', () => {
 
   describe('URL encoding', () => {
     test('should properly encode special characters in search query', async () => {
-      mockTriliumClient.get.mockResolvedValue([]);
+      mockTriliumClient.get.mockResolvedValue({ results: [] });
 
       await searchNotes(mockTriliumClient, {
         query: 'test & encode + special % chars',
@@ -376,7 +386,7 @@ describe('searchNotes', () => {
     });
 
     test('should properly encode quotes in search query', async () => {
-      mockTriliumClient.get.mockResolvedValue([]);
+      mockTriliumClient.get.mockResolvedValue({ results: [] });
 
       await searchNotes(mockTriliumClient, {
         query: '"exact phrase" with quotes',
@@ -389,7 +399,7 @@ describe('searchNotes', () => {
     });
 
     test('should properly encode hash symbols for label search', async () => {
-      mockTriliumClient.get.mockResolvedValue([]);
+      mockTriliumClient.get.mockResolvedValue({ results: [] });
 
       await searchNotes(mockTriliumClient, {
         query: '#label #tag search',
@@ -405,12 +415,14 @@ describe('searchNotes', () => {
   describe('edge cases', () => {
     test('should handle very large result sets', async () => {
       // Create mock response with many notes
-      const mockResponse = Array.from({ length: 50 }, (_, i) => ({
-        noteId: `note${i}`,
-        title: `Note ${i}`,
-        type: 'text',
-        dateModified: '2024-01-15T14:30:00.000Z'
-      }));
+      const mockResponse = {
+        results: Array.from({ length: 50 }, (_, i) => ({
+          noteId: `note${i}`,
+          title: `Note ${i}`,
+          type: 'text',
+          dateModified: '2024-01-15T14:30:00.000Z'
+        }))
+      };
 
       mockTriliumClient.get.mockResolvedValue(mockResponse);
 
@@ -428,13 +440,15 @@ describe('searchNotes', () => {
 
     test('should handle notes with very long titles', async () => {
       const longTitle = 'A'.repeat(200);
-      const mockResponse = [
-        {
-          noteId: 'note123',
-          title: longTitle,
-          type: 'text'
-        }
-      ];
+      const mockResponse = {
+        results: [
+          {
+            noteId: 'note123',
+            title: longTitle,
+            type: 'text'
+          }
+        ]
+      };
 
       mockTriliumClient.get.mockResolvedValue(mockResponse);
 
@@ -447,13 +461,15 @@ describe('searchNotes', () => {
     });
 
     test('should handle Unicode characters in search query and results', async () => {
-      const mockResponse = [
-        {
-          noteId: 'note123',
-          title: '日本語のノート 🌸',
-          type: 'text'
-        }
-      ];
+      const mockResponse = {
+        results: [
+          {
+            noteId: 'note123',
+            title: '日本語のノート 🌸',
+            type: 'text'
+          }
+        ]
+      };
 
       mockTriliumClient.get.mockResolvedValue(mockResponse);
 
