@@ -73,7 +73,7 @@ class TriliumMCPServer {
                 },
                 parentNoteId: {
                   type: 'string',
-                  description: 'ID of the parent note (optional)',
+                  description: 'ID of the parent note (defaults to "root" if not provided)',
                 },
               },
               required: ['title', 'content'],

@@ -118,7 +118,7 @@ describe('createNote', () => {
       });
     });
 
-    test('should handle note without parentNoteId', async () => {
+    test('should default to root parentNoteId when not provided', async () => {
       const mockResponse = {
         note: {
           noteId: 'root123',
@@ -142,7 +142,7 @@ describe('createNote', () => {
       });
 
       const jsonData = JSON.parse(result.content[1].text);
-      expect(jsonData.request.parentNoteId).toBeNull();
+      expect(jsonData.request.parentNoteId).toBe('root');
     });
 
     test('should preserve additional API response fields', async () => {

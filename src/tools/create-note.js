@@ -8,16 +8,17 @@ export async function createNote(triliumClient, args) {
     const title = validators.title(args.title);
     const content = validators.content(args.content);
     const type = validators.noteType(args.type);
-    const parentNoteId = args.parentNoteId ? validators.noteId(args.parentNoteId) : undefined;
+    // TriliumNext API requires parentNoteId - default to 'root' if not provided
+    const parentNoteId = args.parentNoteId ? validators.noteId(args.parentNoteId) : 'root';
 
-    logger.debug(`Creating note: title="${title}", type="${type}", parent="${parentNoteId || 'root'}"`);
+    logger.debug(`Creating note: title="${title}", type="${type}", parent="${parentNoteId}"`);
 
     // Prepare note data for TriliumNext API
     const noteData = {
       title,
       content,
       type,
-      ...(parentNoteId && { parentNoteId }),
+      parentNoteId, // Always required by TriliumNext API
     };
 
     // Create the note via TriliumNext API
@@ -38,7 +39,7 @@ export async function createNote(triliumClient, args) {
         title,
         type,
         contentLength: content.length,
-        parentNoteId: parentNoteId || null
+        parentNoteId
       },
       result: {
         noteId,
