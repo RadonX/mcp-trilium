@@ -98,6 +98,27 @@ export class TriliumClient {
     return this.makeRequest('PUT', endpoint, data);
   }
 
+  async putRaw(endpoint, content) {
+    try {
+      const config = {
+        method: 'PUT',
+        url: endpoint,
+        data: content,
+        headers: {
+          'Content-Type': 'text/plain'
+        }
+      };
+      
+      const response = await this.client(config);
+      return response.data;
+    } catch (error) {
+      if (error instanceof TriliumAPIError) {
+        throw error;
+      }
+      throw new TriliumAPIError(`Request failed: ${error.message}`, 0, { originalError: error.message });
+    }
+  }
+
   async delete(endpoint) {
     return this.makeRequest('DELETE', endpoint);
   }

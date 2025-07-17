@@ -25,7 +25,8 @@ export async function updateNote(triliumClient, args) {
     }
 
     // Update the note content via TriliumNext API
-    await triliumClient.put(`notes/${noteId}/content`, { content });
+    // TriliumNext API expects raw content string, not JSON object
+    await triliumClient.putRaw(`notes/${noteId}/content`, content);
     
     logger.info(`Note content updated successfully: ${noteId}`);
 
