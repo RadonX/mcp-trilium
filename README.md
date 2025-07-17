@@ -1,294 +1,264 @@
-# MCP TriliumNext Server
+# MCP TriliumNext
 
-A Model Context Protocol (MCP) server for integrating with TriliumNext, a hierarchical note-taking application.
+A Model Context Protocol (MCP) server for [TriliumNext](https://github.com/TriliumNext/Trilium), providing AI assistants with seamless access to your note-taking workflow.
 
-## 🚀 Features
+## Overview
+
+This MCP server enables AI assistants like Claude to interact with your TriliumNext notes through a standardized protocol. It provides tools for creating, searching, reading, and updating notes, as well as accessing recent notes as a resource.
+
+## Features
 
 ### 🛠️ Tools
-- **`create_note`**: Create new notes with validation and support for all note types
-- **`search_notes`**: Search through notes with query validation and result formatting
-- **`get_note`**: Retrieve complete note details including metadata and content
-- **`update_note`**: Update note content with proper error handling
+- **create_note** - Create new notes with title, content, and type
+- **search_notes** - Search notes using fulltext or structured queries
+- **get_note** - Retrieve complete note details and content
+- **update_note** - Update existing note content
 
-### 📋 Resources
-- **`trilium://recent-notes`**: Access to your 10 most recently modified notes in JSON format
+### 📚 Resources
+- **trilium://recent-notes** - Access to 10 most recently modified notes
 
-### 🔒 Security & Validation
-- Comprehensive input validation for all parameters
-- Secure authentication token handling
-- Error handling with user-friendly messages
-- Request timeout and retry logic
+### ✨ Key Capabilities
+- Full CRUD operations for notes
+- Advanced search with TriliumNext query syntax
+- Structured data preservation for AI consumption
+- Comprehensive error handling and validation
+- Production-ready logging and monitoring
 
-## 📦 Installation
+## Installation
 
-1. **Clone or download this repository**
+### Prerequisites
+- Node.js 18.0.0 or higher
+- TriliumNext server running and accessible
+- ETAPI token from your TriliumNext instance
 
-2. **Install dependencies:**
+### Setup
+
+1. **Clone and install**
    ```bash
+   git clone https://github.com/your-username/mcp-triliumnext.git
+   cd mcp-triliumnext
    npm install
    ```
 
-3. **Set up environment variables:**
+2. **Configure environment**
    ```bash
    cp .env.example .env
-   # Edit .env with your TriliumNext configuration
+   ```
+   
+   Edit `.env` with your settings:
+   ```env
+   TRILIUM_URL=http://localhost:8080
+   TRILIUM_AUTH_TOKEN=your_etapi_token_here
+   REQUEST_TIMEOUT=30000
+   LOG_LEVEL=info
    ```
 
-## ⚙️ Configuration
+3. **Get your ETAPI token**
+   - Open TriliumNext web interface
+   - Go to Options → ETAPI
+   - Create a new token or use existing one
+   - Copy the token to your `.env` file
 
-### Environment Variables
-
-Create a `.env` file or set these environment variables:
-
-```bash
-# Required
-TRILIUM_URL=http://localhost:8080          # Your TriliumNext server URL
-TRILIUM_AUTH_TOKEN=your_auth_token_here    # Your TriliumNext auth token
-
-# Optional
-LOG_LEVEL=info                             # Logging level (error, warn, info, debug)
-REQUEST_TIMEOUT=30000                      # Request timeout in milliseconds
-```
-
-### Getting Your Auth Token
-
-1. **Open TriliumNext in your browser** (usually `http://localhost:8080`)
-2. **Go to Options → ETAPI** (or look for API tokens section)
-3. **Create a new token:**
-   - Click "Create new token" or "+" button
-   - Give it a descriptive name (e.g., "MCP Server")
-   - Copy the generated token
-4. **Set the token in your environment:**
+4. **Test connectivity**
    ```bash
-   export TRILIUM_AUTH_TOKEN="your_copied_token_here"
+   npm run test-connectivity
    ```
 
-## 🎯 Usage
+## Usage
 
-### Standalone Server
+### With Claude Desktop
 
-```bash
-# Start the server
-npm start
-
-# Development mode with auto-reload
-npm run dev
-```
-
-### Claude Desktop Integration
-
-Add this configuration to your Claude Desktop MCP settings:
+Add to your Claude Desktop configuration (`~/.claude/claude_desktop_config.json`):
 
 ```json
 {
   "mcpServers": {
-    "triliumnext": {
+    "trilium": {
       "command": "node",
-      "args": ["/absolute/path/to/mcp-triliumnext/src/index.js"],
+      "args": ["/path/to/mcp-triliumnext/src/index.js"],
       "env": {
         "TRILIUM_URL": "http://localhost:8080",
-        "TRILIUM_AUTH_TOKEN": "your_auth_token_here"
+        "TRILIUM_AUTH_TOKEN": "your_token_here"
       }
     }
   }
 }
 ```
 
-### MCP Inspector Testing
-
-Test your server interactively:
+### With MCP Inspector
 
 ```bash
-npx @modelcontextprotocol/inspector node src/index.js
+npx @modelcontextprotocol/inspector src/index.js
 ```
 
-This opens a web interface where you can test all tools and resources.
+### Standalone Usage
 
-## 🛠️ Tool Reference
+```bash
+npm start
+```
 
-### create_note
+## Examples
 
-Create a new note in TriliumNext.
-
-**Parameters:**
-- `title` (required): Note title (max 200 characters)
-- `content` (required): Note content (max 1MB)
-- `type` (optional): Note type - one of: `text`, `code`, `file`, `image`, `search`, `book`, `relationMap`, `canvas` (default: `text`)
-- `parentNoteId` (optional): ID of parent note
-
-**Example:**
-```json
+### Creating a Note
+```javascript
+// Ask Claude: "Create a note about TypeScript basics"
 {
-  "title": "My New Note",
-  "content": "This is the content of my note.",
-  "type": "text"
+  "tool": "create_note",
+  "arguments": {
+    "title": "TypeScript Basics",
+    "content": "# TypeScript Fundamentals\n\nTypeScript is a typed superset of JavaScript...",
+    "type": "text",
+    "parentNoteId": "root"
+  }
 }
 ```
 
-### search_notes
-
-Search for notes using TriliumNext's search capabilities.
-
-**Parameters:**
-- `query` (required): Search query (max 500 characters)
-- `limit` (optional): Maximum results to return (1-100, default: 10)
-
-**Example:**
-```json
+### Searching Notes
+```javascript
+// Ask Claude: "Find all notes about JavaScript"
 {
-  "query": "javascript programming",
-  "limit": 5
+  "tool": "search_notes",
+  "arguments": {
+    "query": "javascript #programming",
+    "limit": 10
+  }
 }
 ```
 
-### get_note
-
-Retrieve detailed information about a specific note.
-
-**Parameters:**
-- `noteId` (required): The ID of the note to retrieve
-
-**Example:**
-```json
+### Updating Content
+```javascript
+// Ask Claude: "Update my JavaScript notes with new ES6 features"
 {
-  "noteId": "abc123def456"
+  "tool": "update_note",
+  "arguments": {
+    "noteId": "note123abc",
+    "content": "Updated content with ES6 features..."
+  }
 }
 ```
 
-### update_note
+## Search Query Syntax
 
-Update the content of an existing note.
+TriliumNext supports powerful search queries:
 
-**Parameters:**
-- `noteId` (required): The ID of the note to update
-- `content` (required): New content for the note (max 1MB)
+- **Fulltext**: `machine learning algorithms`
+- **Exact match**: `"neural networks"`
+- **Labels**: `#programming #javascript`
+- **Combined**: `"react hooks" #programming type:code`
+- **Date filters**: `dateCreated:>2024-01-01`
 
-**Example:**
-```json
-{
-  "noteId": "abc123def456",
-  "content": "Updated content for the note."
-}
+## Development
+
+### Running Tests
+```bash
+# Run all tests
+npm test
+
+# Watch mode
+npm run test:watch
+
+# Coverage report
+npm run test:coverage
 ```
-
-## 📋 Resource Reference
-
-### trilium://recent-notes
-
-Returns a JSON object containing your 10 most recently modified notes with metadata.
-
-**Response format:**
-```json
-{
-  "notes": [
-    {
-      "noteId": "abc123",
-      "title": "Note Title",
-      "type": "text",
-      "dateCreated": "2024-01-01T00:00:00.000Z",
-      "dateModified": "2024-01-01T12:00:00.000Z",
-      "parentNoteId": "parent123",
-      "isProtected": false,
-      "contentLength": 1024,
-      "attributes": []
-    }
-  ],
-  "timestamp": "2024-01-01T12:00:00.000Z",
-  "count": 10,
-  "description": "Recently modified notes from TriliumNext"
-}
-```
-
-## 🔧 Development
 
 ### Project Structure
-
 ```
-mcp-triliumnext/
-├── src/
-│   ├── index.js              # Main server implementation
-│   ├── tools/                # Tool implementations
-│   │   ├── create-note.js
-│   │   ├── search-notes.js
-│   │   ├── get-note.js
-│   │   └── update-note.js
-│   ├── resources/            # Resource handlers
-│   │   └── recent-notes.js
-│   └── utils/                # Utility modules
-│       ├── logger.js         # Logging functionality
-│       ├── validation.js     # Input validation
-│       └── trilium-client.js # TriliumNext API client
-├── docs/                     # Documentation
-├── package.json
-├── .env.example
-└── README.md
+src/
+├── index.js           # Main MCP server
+├── tools/             # MCP tool implementations
+│   ├── create-note.js
+│   ├── search-notes.js
+│   ├── get-note.js
+│   └── update-note.js
+├── resources/         # MCP resource implementations
+│   └── recent-notes.js
+└── utils/             # Shared utilities
+    ├── trilium-client.js
+    ├── validation.js
+    └── logger.js
 ```
 
-### Error Handling
+### API Reference
 
-The server implements comprehensive error handling:
+#### TriliumNext ETAPI
+This server uses TriliumNext's External API (ETAPI). Key endpoints:
+- `GET /notes` - Search notes
+- `POST /create-note` - Create note
+- `GET /notes/{id}` - Get note details
+- `PUT /notes/{id}/content` - Update note content
 
-- **Validation errors**: Input parameter validation with helpful messages
-- **API errors**: TriliumNext API error handling with status codes
-- **Network errors**: Timeout and connection error handling
-- **Authentication errors**: Clear messages for auth failures
+See [docs/trilium-etapi-specification.md](docs/trilium-etapi-specification.md) for complete API documentation.
 
-### Logging
+## Configuration
 
-Configurable logging levels:
-- `error`: Only error messages
-- `warn`: Warnings and errors
-- `info`: General information (default)
-- `debug`: Detailed debugging information
+### Environment Variables
+- `TRILIUM_URL` - TriliumNext server URL (default: `http://localhost:8080`)
+- `TRILIUM_AUTH_TOKEN` - ETAPI authentication token (required)
+- `REQUEST_TIMEOUT` - API request timeout in ms (default: `30000`)
+- `LOG_LEVEL` - Logging level: `error`, `warn`, `info`, `debug` (default: `info`)
 
-Set via `LOG_LEVEL` environment variable.
+### Note Types
+Supported note types:
+- `text` - Rich text notes (default)
+- `code` - Code snippets with syntax highlighting
+- `file` - File attachments
+- `image` - Image notes
+- `search` - Saved searches
+- `book` - Book/chapter organization
+- `relationMap` - Visual relation maps
+- `canvas` - Freeform canvas notes
 
-## 🔍 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
-1. **Authentication Failed**
-   - Check your `TRILIUM_AUTH_TOKEN` is correct
-   - Verify the token hasn't expired
-   - Ensure TriliumNext is running and accessible
+**Authentication Failed**
+```bash
+# Check your token
+curl -H "Authorization: Bearer your_token" http://localhost:8080/etapi/app-info
+```
 
-2. **Connection Refused**
-   - Verify `TRILIUM_URL` is correct
-   - Check TriliumNext is running on the specified port
-   - Test connectivity: `curl http://localhost:8080/etapi/notes`
+**Connection Refused**
+- Verify TriliumNext is running
+- Check `TRILIUM_URL` in `.env`
+- Ensure ETAPI is enabled in TriliumNext settings
 
-3. **Note Not Found**
-   - Verify the note ID exists
-   - Check you have permission to access the note
-   - Note might be in a protected subtree
-
-4. **Validation Errors**
-   - Check parameter types and lengths
-   - Ensure required fields are provided
-   - Verify note types are supported
+**Content Stored as [Object]**
+- Fixed in v0.1.0 - content now properly sent as text/plain
+- Update to latest version if experiencing this issue
 
 ### Debug Mode
-
-Enable debug logging for detailed information:
-
 ```bash
 LOG_LEVEL=debug npm start
 ```
 
-## 📄 License
-
-MIT License - see LICENSE file for details.
-
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
+2. Create a feature branch: `git checkout -b feature-name`
+3. Make your changes with tests
+4. Run the test suite: `npm test`
 5. Submit a pull request
 
-## 📚 Related Links
+## License
 
-- [TriliumNext Documentation](https://github.com/TriliumNext/Notes)
-- [Model Context Protocol](https://modelcontextprotocol.io/)
-- [Claude Desktop MCP Guide](https://docs.anthropic.com/claude/docs/model-context-protocol)
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## Related Projects
+
+- [TriliumNext](https://github.com/TriliumNext/Trilium) - The note-taking application
+- [Model Context Protocol](https://github.com/modelcontextprotocol/servers) - MCP specification
+- [Claude Desktop](https://claude.ai/desktop) - AI assistant with MCP support
+
+## Changelog
+
+### v0.1.0
+- Initial release with full CRUD operations
+- MCP resource for recent notes
+- Comprehensive test coverage
+- Production-ready error handling
+- Fixed content handling to prevent [Object] storage
+
+---
+
+Made with ❤️ for the TriliumNext and MCP communities
