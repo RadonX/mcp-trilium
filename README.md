@@ -35,17 +35,13 @@ This MCP server enables AI assistants like Claude to interact with your TriliumN
 
 1. **Clone and install**
    ```bash
-   git clone https://github.com/your-username/mcp-triliumnext.git
-   cd mcp-triliumnext
+   git clone git@github.com:RadonX/mcp-trilium.git
+   cd mcp-trilium
    npm install
    ```
 
 2. **Configure environment**
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Edit `.env` with your settings:
+   Create a `.env` file with your settings:
    ```env
    TRILIUM_URL=http://localhost:8080
    TRILIUM_AUTH_TOKEN=your_etapi_token_here
@@ -75,7 +71,7 @@ Add to your Claude Desktop configuration (`~/.claude/claude_desktop_config.json`
   "mcpServers": {
     "trilium": {
       "command": "node",
-      "args": ["/path/to/mcp-triliumnext/src/index.js"],
+      "args": ["/path/to/mcp-trilium/src/index.js"],
       "env": {
         "TRILIUM_URL": "http://localhost:8080",
         "TRILIUM_AUTH_TOKEN": "your_token_here"
@@ -250,14 +246,32 @@ MIT License - see [LICENSE](LICENSE) file for details.
 - [Model Context Protocol](https://github.com/modelcontextprotocol/servers) - MCP specification
 - [Claude Desktop](https://claude.ai/desktop) - AI assistant with MCP support
 
+## Future Enhancements
+
+The following features may be added in future versions:
+
+### 🚀 Planned Features
+- **Enhanced note types support** - Full support for all TriliumNext note types (relationMap, canvas, etc.)
+- **Advanced search features** - Attribute-based queries, date range filters, and complex search operators
+- **Performance optimizations** - Caching, batch operations, and streaming for large note collections
+- **Note relationship management** - Tools for managing note relationships and hierarchies
+- **Bulk operations** - Create, update, or delete multiple notes in a single operation
+- **Attachment handling** - Support for file uploads and downloads
+- **Real-time updates** - WebSocket integration for live note synchronization
+
+### 💡 Potential Integrations
+- **Export capabilities** - Export notes to various formats (Markdown, PDF, etc.)
+- **Template system** - Predefined note templates for common use cases
+- **Backup and restore** - Automated backup functionality through MCP
+- **Analytics and insights** - Note usage statistics and content analysis
+
 ## Changelog
 
 ### v0.1.0
 - Initial release with full CRUD operations
 - MCP resource for recent notes
-- Comprehensive test coverage
-- Production-ready error handling
-- Fixed content handling to prevent [Object] storage
+- Comprehensive test coverage (94 tests)
+- Production-ready error handling and validation
 
 ---
 
