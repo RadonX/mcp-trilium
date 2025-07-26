@@ -2,6 +2,10 @@
 
 A Model Context Protocol (MCP) server for [TriliumNext](https://github.com/TriliumNext/Trilium), providing AI assistants with seamless access to your note-taking workflow.
 
+<a href="https://glama.ai/mcp/servers/@RadonX/mcp-trilium">
+  <img width="380" height="200" src="https://glama.ai/mcp/servers/@RadonX/mcp-trilium/badge" alt="TriliumNext MCP server" />
+</a>
+
 ## Overview
 
 This MCP server enables AI assistants like Claude to interact with your TriliumNext notes through a standardized protocol. It provides tools for creating, searching, reading, and updating notes, as well as accessing recent notes as a resource.
