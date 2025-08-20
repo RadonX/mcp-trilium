@@ -62,6 +62,14 @@ This MCP server enables AI assistants like Claude to interact with your TriliumN
 
 ## Usage
 
+### With Claude Code
+
+Add the MCP server directly using Claude Code:
+
+```bash
+claude mcp add trilium-mcp node /path/to/mcp-trilium/src/index.js --env TRILIUM_URL=http://localhost:8080 --env TRILIUM_AUTH_TOKEN=your_etapi_token_here --env REQUEST_TIMEOUT=30000 --env LOG_LEVEL=info
+```
+
 ### With Claude Desktop
 
 Add to your Claude Desktop configuration (`~/.claude/claude_desktop_config.json`):
