@@ -95,10 +95,11 @@ Attachment:
 - `GET /notes` - Search notes with advanced filtering
 - `POST /create-note` - Create new note
 - `GET /notes/{noteId}` - Get note details
-- `PUT /notes/{noteId}` - Update note metadata
+- `PATCH /notes/{noteId}` - Update note metadata (changed from PUT)
 - `DELETE /notes/{noteId}` - Delete note
 - `GET /notes/{noteId}/content` - Get note content
 - `PUT /notes/{noteId}/content` - Update note content
+- `POST /notes/{noteId}/revision` - Create note revision
 
 ### Search Parameters (GET /notes)
 ```yaml
@@ -111,8 +112,18 @@ search: string (required) - Search query
 fastSearch: boolean - Enable quick search
 includeArchivedNotes: boolean - Include archived notes
 ancestorNoteId: string - Limit to subtree
-ancestorDepth: string - Search depth (e.g., "eq1" for direct children)
-orderBy: string - Sort field (title, dateCreated, dateModified, etc.)
+ancestorDepth: string - Search depth examples:
+  - "eq1" - exactly depth 1 (direct children)
+  - "eq3" - exactly depth 3  
+  - "lt4" - less than depth 4 (1, 2, 3)
+  - "gt2" - greater than depth 2 (3, 4, 5...)
+
+orderBy: string - Sort field options:
+  - title, dateCreated, dateModified, utcDateCreated, utcDateModified
+  - isProtected, isArchived, parentCount, childrenCount
+  - attributeCount, labelCount, relationCount, contentSize
+  - revisionCount, contentAndAttachmentsSize
+
 orderDirection: string - "asc" or "desc"
 limit: integer - Max results
 debug: boolean - Include query parsing info
@@ -141,10 +152,13 @@ debug: boolean - Include query parsing info
 - `PUT /attachments/{attachmentId}/content` - Update attachment content
 
 ### Calendar Integration
-- `GET /calendar/days/{date}` - Get day note
-- `GET /calendar/weeks/{date}` - Get week note
-- `GET /calendar/months/{date}` - Get month note
-- `GET /calendar/years/{year}` - Get year note
+- `GET /calendar/days/{date}` - Get/create day note for specific date
+- `GET /calendar/weeks/{date}` - Get/create week note for date
+- `GET /calendar/months/{month}` - Get/create month note
+- `GET /calendar/years/{year}` - Get/create year note
+
+### Inbox
+- `GET /inbox/{date}` - Get inbox note for specific date
 
 ### Import/Export
 - `POST /notes/{noteId}/export` - Export note subtree
